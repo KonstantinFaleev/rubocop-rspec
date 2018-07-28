@@ -120,6 +120,7 @@ RSpec.describe RuboCop::Cop::RSpec::FactoryBot::AttributeDefinedStatically do # 
         update_times [Time.current]
         meta_tags(foo: Time.current)
         other_tags({ foo: Time.current })
+        options color: :blue
 
         trait :old do
           published_at 1.week.ago
@@ -142,6 +143,7 @@ RSpec.describe RuboCop::Cop::RSpec::FactoryBot::AttributeDefinedStatically do # 
         update_times { [Time.current] }
         meta_tags { { foo: Time.current } }
         other_tags { { foo: Time.current } }
+        options { { color: :blue } }
 
         trait :old do
           published_at { 1.week.ago }

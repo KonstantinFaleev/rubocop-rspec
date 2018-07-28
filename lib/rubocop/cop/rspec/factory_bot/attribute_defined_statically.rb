@@ -78,12 +78,10 @@ module RuboCop
           end
 
           def autocorrect(node)
-            if !method_uses_parens?(node.location)
-              autocorrect_without_parens(node)
-            elsif value_hash_without_braces?(node.descendants.first)
-              autocorrect_hash_without_braces(node)
-            else
+            if method_uses_parens?(node.location)
               autocorrect_replacing_parens(node)
+            else
+              autocorrect_without_parens(node)
             end
           end
 
@@ -111,25 +109,31 @@ module RuboCop
             location.begin.source == '(' && location.end.source == ')'
           end
 
-          def autocorrect_hash_without_braces(node)
-            autocorrect_replacing_parens(node, ' { { ', ' } }')
-          end
+          def autocorrect_replacing_parens(node)
+            left_braces, right_braces = braces(node)
 
-          def autocorrect_replacing_parens(node,
-                                           start_token = ' { ',
-                                           end_token = ' }')
             lambda do |corrector|
-              corrector.replace(node.location.begin, start_token)
-              corrector.replace(node.location.end, end_token)
+              corrector.replace(node.location.begin, ' ' + left_braces)
+              corrector.replace(node.location.end, right_braces)
             end
           end
 
           def autocorrect_without_parens(node)
+            left_braces, right_braces = braces(node)
+
             lambda do |corrector|
               arguments = node.descendants.first
               expression = arguments.location.expression
-              corrector.insert_before(expression, '{ ')
-              corrector.insert_after(expression, ' }')
+              corrector.insert_before(expression, left_braces)
+              corrector.insert_after(expression, right_braces)
+            end
+          end
+
+          def braces(node)
+            if value_hash_without_braces?(node.descendants.first)
+              ['{ { ', ' } }']
+            else
+              ['{ ', ' }']
             end
           end
 
