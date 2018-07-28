@@ -72,7 +72,7 @@ module RuboCop
 
           def on_block(node)
             factory_attributes(node).to_a.flatten.each do |attribute|
-              next if proc?(attribute)
+              next if proc?(attribute) || association?(attribute)
               add_offense(attribute, location: :expression)
             end
           end
@@ -91,6 +91,15 @@ module RuboCop
 
           def proc?(attribute)
             value_matcher(attribute).to_a.all?(&:block_pass_type?)
+          end
+
+          def association?(attribute)
+            method_argument = attribute.descendants.first
+            method_argument.hash_type? && factory_key?(method_argument)
+          end
+
+          def factory_key?(hash_node)
+            hash_node.keys.any? { |key| key.value == :factory }
           end
 
           def value_hash_without_braces?(node)

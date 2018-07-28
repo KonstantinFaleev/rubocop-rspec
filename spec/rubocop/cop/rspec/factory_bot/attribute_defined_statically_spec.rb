@@ -86,6 +86,16 @@ RSpec.describe RuboCop::Cop::RSpec::FactoryBot::AttributeDefinedStatically do # 
     RUBY
   end
 
+  it 'accepts valid association definitions' do
+    expect_no_offenses(<<-RUBY)
+      FactoryBot.define do
+        factory :post do
+          author age: 42, factory: :user
+        end
+      end
+    RUBY
+  end
+
   it 'accepts valid sequence definition' do
     expect_no_offenses(<<-RUBY)
       FactoryBot.define do
